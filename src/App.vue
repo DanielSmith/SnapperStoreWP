@@ -167,8 +167,6 @@
       getWPData() {
   
         this.titles = [];
-  
-        console.log('hit getWPData');
         fetch(`http://wp.dls/wp-json/wp/v2/posts`)
           .then(response => response.json())
           .then(response => {
@@ -185,12 +183,8 @@
   
 
       checkFile(theTarget) {
-
-        alert('right after du call');
-
         let theFile = theTarget.files[0];
         this.doUpload(theFile);
-        alert('right befoe du call');
 
         // console.table(theTarget.files[0]);
         // // alert('new file' + theTarget.files.fileList[0].name);
