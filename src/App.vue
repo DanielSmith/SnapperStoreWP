@@ -36,25 +36,21 @@
 <script>
   import axios from 'axios';
   import mimeUtils from './mimeUtils';
+  import config from './config';
   
   export default {
     name: 'app',
     data() {
       return {
-        msg: 'Create WordPress Media...' + new Date().getTime(),
-  
-        auth: {
-          username: 'dasssssniel',
-          password: 'root'
-        },
-  
-        titles: [
-          'this',
-          'that'
-        ],
+        defaultMsg: 'Create WordPress Media...',
+        msg: '',
+
+        // for next iteration
+        titles: [ ],
   
         authToken: '',
-        mediaID: 1233,
+        mediaID: 0,
+        mediaName: 'unknown',
 
         thePost: ''
       }
@@ -65,6 +61,8 @@
   
     mounted: function() {
       this.doAuth();
+      this.msg = this.defaultMsg;
+      console.dir(this.$config);
     },
   
     methods: {
@@ -77,10 +75,10 @@
       },
 
       doAuth() {
-        const wpAuthPoint = 'http://wp.dls/wp-json/simple-jwt-authentication/v1/token';
+        const wpAuthPoint = `${this.$config.SERVER}/wp-json/simple-jwt-authentication/v1/token`;
         let postData = {
-          'username': 'daniel',
-          'password': 'root'
+          'username': this.$config.WP_USER,
+          'password': this.$config.WP_PASSWORD
         };
   
         let axiosConfig = {};
@@ -117,6 +115,8 @@
         // TODO:  do a check here to see if it is an image...
         let imageItem = items[0];
         let imageFile = imageItem.getAsFile();
+
+        console.dir(imageFile);
 
         /* this is for future handling of showing a preview..
         if (imageItem.kind === 'file') {
@@ -221,24 +221,26 @@
   
   
       doUpload(theFile) {
-        const wpPostPoint = 'http://wp.dls/wp-json/wp/v2/media';
-  
-        let mediaName = theFile.name;
-        let mediaMIME = mimeUtils.getData(theFile);
+        const wpPostPoint = `${this.$config.SERVER}/wp-json/wp/v2/media`;
 
-        console.dir(mediaMIME);
-  
+        // dont bother..
+        if (theFile === null) {
+          return;
+        }
+        this.msg = 'Uploading...';
+
+        this.mediaName = theFile.name;
+        let mediaMIME = mimeUtils.getData(theFile);
+   
         let axiosConfig = {
           headers: {
             'Authorization': 'Bearer ' + this.authToken,
             'cache-control': 'no-cache',
-            'content-disposition': `attachment; filename=${mediaName}`,
+            'content-disposition': `attachment; filename=${this.mediaName}`,
             'content-type': theFile.type
           }
         }
 
-        console.dir(axiosConfig.headers);
-  
         let postData = theFile;
         let mediaURL = '';
 
@@ -253,11 +255,11 @@
       },
   
       doPost(url, theMIME) {
-        const wpPostPoint = 'http://wp.dls/wp-json/wp/v2/posts';
+        const wpPostPoint = `${this.$config.SERVER}/wp-json/wp/v2/posts`;
         this.thePost = this.getMediaCode(url, theMIME);
 
         let postData = {
-          'title': "'" + this.mediaID + "'",
+          'title': this.mediaName,
           'content': this.thePost,
           'status': 'publish'
         }
@@ -268,16 +270,20 @@
           }
         }
 
+        // update to use await...
         axios.post(wpPostPoint, postData, axiosConfig)
           .then(function(response) {
-            console.log(response);
+            this.msg = this.defaultMsg;
           }).catch(function(error) {
-            console.log('Error  33 on post');
+            console.log('Error on post...');
           });
+
+        // this will need updating too.. the post is not actually done at this point...
+        this.msg = this.defaultMsg;
       },
 
       getMediaCode(path, mediaMIME) {
-
+        
         switch (mediaMIME.type) {
           case "image":
             return `

@@ -3,7 +3,15 @@ import Vue from 'vue'
 const vueConfig = require('vue-config')
 const configs = {
   ENV: 'Local Dev',
-  SERVER: 'http://wp.dls:',
+
+  // point at your own WP server
+  SERVER: 'http://wp.dls',
+
+  // your login..
+  WP_USER: 'daniel',
+  
+  // your password...
+  WP_PASSWORD: 'root',
 }
 
 Vue.use(vueConfig, configs)
