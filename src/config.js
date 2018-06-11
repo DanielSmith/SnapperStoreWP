@@ -5,7 +5,7 @@ const configs = {
   ENV: 'Local Dev',
 
   // point at your own WP server
-  SERVER: 'http://wp.dls',
+  SERVER: 'http://wp2.dls',
 
   // your login..
   WP_USER: 'daniel',
