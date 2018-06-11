@@ -11,7 +11,7 @@ const configs = {
   WP_USER: 'daniel',
   
   // your password...
-  WP_PASSWORD: 'root',
+  WP_PASSWORD: 'root'
 }
 
 Vue.use(vueConfig, configs)
